@@ -6,7 +6,6 @@
 #include <vector>
 #include <queue>
 #include "task.h"
-#define HOMEWORKPRIORITIZER_TASK_H
 
 
 using namespace std;
@@ -77,8 +76,12 @@ int main() {
     priority_queue<task> pq;
 
     cout<<pq.size()<<endl;
-    const task topTask = pq.top();
-    cout<<topTask.getName()<<endl;
+    if (pq.empty()) {
+        cout << "priority queue is empty!" << endl;
+    }else {
+        const task topTask = pq.top();
+        cout<<topTask.getName()<<endl;
+    }
 
     int times;
     cout<< "Tasks: ";
