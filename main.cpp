@@ -60,11 +60,15 @@ task createNewTask() {
         copy(newBegin, end, back_inserter(tokens));
     }
 
-    int day = stoi(tokens[0]);
-    int month = stoi(tokens[1]);
-    int year = stoi(tokens[2]);
-    cout << "Day: " << day << " Month: " << month << " Year: " << year << endl;
-
+    int day, month, year;
+    try {
+        day = stoi(tokens[0]);
+        month = stoi(tokens[1]);
+        year = stoi(tokens[2]);
+    } catch (const std::exception& e) {
+        cout << "Invalid date numbers! Please use digits." << endl;
+        return createNewTask(); // Restart the prompt
+    }
     return {name, diff, task::makeDue(year, month, day), importance};
 
 
