@@ -3,4 +3,5 @@ project(HomeworkPrioritizer)
 
 set(CMAKE_CXX_STANDARD 20)
 
-add_executable(HeloWorld main.cpp)
+add_executable(HeloWorld main.cpp
+        task.h)
