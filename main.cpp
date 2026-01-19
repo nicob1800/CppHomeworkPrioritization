@@ -61,13 +61,33 @@ task createNewTask() {
     }
 
     int day, month, year;
-    try {
-        day = stoi(tokens[0]);
-        month = stoi(tokens[1]);
-        year = stoi(tokens[2]);
-    } catch (const std::exception& e) {
-        cout << "Invalid date numbers! Please use digits." << endl;
-        return createNewTask(); // Restart the prompt
+
+    while (true) {
+        cout << "Date (DD-MM-YYYY): ";
+        cin >> dueDRaw;
+
+        // 1. Tokenize the input
+        vector<string> theseTokens;
+        sregex_token_iterator thisBegin(dueDRaw.begin(), dueDRaw.end(), re, -1);
+        copy(begin, end, back_inserter(theseTokens));
+
+        // 2. Validate format and attempt conversion
+        try {
+            if (theseTokens.size() != 3 || theseTokens[0].length() != 2 ||
+                theseTokens[1].length() != 2 || theseTokens[2].length() != 4) {
+                throw std::invalid_argument("Format error");
+                }
+
+            day = stoi(theseTokens[0]);
+            month = stoi(theseTokens[1]);
+            year = stoi(theseTokens[2]);
+
+            // If we reached here, inputs are valid numbers. Break the loop!
+            break;
+        } catch (...) {
+            cout << "ERROR! Invalid date or format. Please use DD-MM-YYYY (e.g., 19-01-2026)." << endl;
+            // The loop continues, asking for the date again.
+        }
     }
     return {name, diff, task::makeDue(year, month, day), importance};
 
