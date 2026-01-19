@@ -1,9 +1,4 @@
-name: Qodana Scan
-uses: JetBrains/qodana-action@v2025.2 # This is the Action version
-with:
-  args: --image,jetbrains/qodana-clang:2025.3-eap # Use the newer clang-based image
-env:
-  QODANA_TOKEN: ${{ secrets.QODANA_TOKEN }}
+name: Qodana
 on:
   workflow_dispatch:
   pull_request:
