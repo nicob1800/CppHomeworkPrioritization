@@ -22,7 +22,7 @@ jobs:
         uses: JetBrains/qodana-action@v2025.2
         with:
           pr-mode: false
-          args: --linter,jetbrains/qodana-cpp  # Changed from --image to --linter
+          args: --linter,jetbrains/qodana-cpp:2025.2  # Changed from --image to --linter
         env:
           QODANA_TOKEN: ${{ secrets.QODANA_TOKEN_1154842778 }}
           QODANA_ENDPOINT: 'https://qodana.cloud'
