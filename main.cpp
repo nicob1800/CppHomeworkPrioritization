@@ -61,7 +61,6 @@ task createNewTask() {
     }
 
     int day, month, year;
-
     while (true) {
         cout << "Date (DD-MM-YYYY): ";
         cin >> dueDRaw;
