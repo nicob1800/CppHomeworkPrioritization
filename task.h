@@ -60,6 +60,9 @@ public:
     [[nodiscard]] double getPriority() const { return priorityVal; }
     void setPriority(const int newP) {this->priorityVal = newP;}
 
+    [[nodiscard]] bool getCompleted() const { return completed; }
+    void setCompleted(const bool newCompleted) { this->completed = newCompleted; }
+
     static time_t makeDue(const int year, const int month, const int day, const int hour = 0) {
         struct tm t = {0};
         t.tm_year = year-1900;

@@ -33,7 +33,8 @@ public:
                           "NAME TEXT NOT NULL,"
                           "DIFFICULTY INT NOT NULL,"
                           "IMPORTANCE INT NOT NULL,"
-                          "DUE_DATE INT NOT NULL);";
+                          "DUE_DATE INT NOT NULL,"
+                          "COMPLETED BOOL NOT NULL);";
         char* errMsg = nullptr;
         if (sqlite3_exec(m_db, sql, nullptr, nullptr, &errMsg) != SQLITE_OK) {
             std::cerr << "SQL Table Error: " << errMsg << std::endl;
@@ -51,7 +52,8 @@ public:
                             t.getName() + "', " +
                             std::to_string(t.getDiff()) + ", " +
                             std::to_string(t.getImportance()) + ", " +
-                            std::to_string(static_cast<long>(t.getTimeLeft())) + ");";
+                            std::to_string(static_cast<long>(t.getTimeLeft())) + ", " +
+                            std::to_string(t.getCompleted()) + ");";
         char* errMsg = nullptr;
         if (sqlite3_exec(m_db, sql.c_str(), nullptr, nullptr, &errMsg) != SQLITE_OK) {
             std::cerr << "Save Error: " << errMsg << std::endl;
@@ -60,7 +62,7 @@ public:
     }
 
     void loadTasksFromDB() {
-        auto sql = "SELECT NAME, DIFFICULTY, IMPORTANCE, DUE_DATE FROM TASKS;";
+        auto sql = "SELECT NAME, DIFFICULTY, IMPORTANCE, DUE_DATE, COMPLETED FROM TASKS;";
 
         auto callback = [](void* data, int argc, char** argv, char** azColName) -> int {
             auto * queue = static_cast<std::priority_queue<task>*>(data);
@@ -68,8 +70,9 @@ public:
             std::string name = argv[0];
             int diff = std::stoi(argv[1]);
             int imp = std::stoi(argv[2]);
+            bool comp = std::stoi(argv[3]);
 
-            queue->emplace(name, diff, time(nullptr) + (std::stoi(argv[3]) * 3600), imp);
+            queue->emplace(name, diff, time(nullptr) + (std::stoi(argv[3]) * 3600), imp, comp);
             return 0;
         };
 
@@ -79,7 +82,7 @@ public:
 
     [[nodiscard]] task getTopTask() const {
         if (m_workQueue.empty()) {
-            return task {"No Tasks", 0, 0, 0};
+            return task {"No Tasks", 0, 0, 0, false};
         }
         return m_workQueue.top();
     }
