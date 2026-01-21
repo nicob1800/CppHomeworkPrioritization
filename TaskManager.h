@@ -89,6 +89,7 @@ public:
             m_workQueue.pop();
         }
     }
+
     [[nodiscard]] bool isEmpty() const {
         return m_workQueue.empty();
     }

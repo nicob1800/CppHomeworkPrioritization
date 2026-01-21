@@ -19,18 +19,19 @@ private:
     int diff;
     time_t dueD;
     int importance;
+    bool completed;
 public:
     double timeLeft;
     double priorityVal;
 
-    task(string name, const int diff, const time_t dueD, const int importance)
-        : name(std::move(name)), diff(diff), dueD(dueD), importance(importance)
+    task(string name, const int diff, const time_t dueD, const int importance, const bool completed)
+        : name(std::move(name)), diff(diff), dueD(dueD), importance(importance), completed(completed)
     {
 
         const double hoursLeft = difftime(dueD, time(nullptr)) / 3600.0;
         this->timeLeft = hoursLeft;
-
-        if (hoursLeft <= 0) {
+        if (completed) {this -> priorityVal = 0;}
+        else if (hoursLeft <= 0) {
             //OVERDUE
             this->priorityVal = 1000000.0 + (static_cast<double>(importance) * std::abs(hoursLeft));
         } else {
