@@ -34,7 +34,7 @@ public:
                           "DIFFICULTY INT NOT NULL,"
                           "IMPORTANCE INT NOT NULL,"
                           "DUE_DATE INT NOT NULL,"
-                          "COMPLETED BOOL NOT NULL);";
+                          "COMPLETED INT NOT NULL);";
         char* errMsg = nullptr;
         if (sqlite3_exec(m_db, sql, nullptr, nullptr, &errMsg) != SQLITE_OK) {
             std::cerr << "SQL Table Error: " << errMsg << std::endl;
@@ -52,7 +52,7 @@ public:
                             t.getName() + "', " +
                             std::to_string(t.getDiff()) + ", " +
                             std::to_string(t.getImportance()) + ", " +
-                            std::to_string(static_cast<long>(t.getTimeLeft())) + ", " +
+                            std::to_string(static_cast<long>(t.getDueD())) + ", " +
                             std::to_string(t.getCompleted()) + ");";
         char* errMsg = nullptr;
         if (sqlite3_exec(m_db, sql.c_str(), nullptr, nullptr, &errMsg) != SQLITE_OK) {
@@ -62,7 +62,7 @@ public:
     }
 
     void loadTasksFromDB() {
-        auto sql = "SELECT NAME, DIFFICULTY, IMPORTANCE, DUE_DATE, COMPLETED FROM tasks;";
+        const auto sql = "SELECT NAME, DIFFICULTY, IMPORTANCE, DUE_DATE, COMPLETED FROM tasks;";
 
         auto callback = [](void* data, int argc, char** argv, char** azColName) -> int {
             auto * queue = static_cast<std::priority_queue<task>*>(data);
@@ -70,7 +70,7 @@ public:
             std::string name = argv[0];
             int diff = std::stoi(argv[1]);
             int imp = std::stoi(argv[2]);
-            long dueVal = std::stoi(argv[3]);
+            const long dueVal = std::stoi(argv[3]);
             bool comp = (std::stoi(argv[4]) != 0);
 
             queue->emplace(name, diff, static_cast<time_t>(dueVal), imp, comp);
@@ -82,7 +82,7 @@ public:
     }
 
     void completeTask(const std::string& taskName) {
-        std::string sql = "UPDATE tasks SET COMPLETE = 1 WHERE NAME ='" + taskName + "';";
+        const std::string sql = "UPDATE tasks SET COMPLETED = 1 WHERE NAME ='" + taskName + "';";
         char* errMsg = nullptr;
 
         if (sqlite3_exec(m_db, sql.c_str(), nullptr, nullptr, &errMsg) != SQLITE_OK) {

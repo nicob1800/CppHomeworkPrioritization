@@ -4,8 +4,8 @@
 #include <algorithm>
 #include <regex>
 #include <vector>
-#include <queue>
 #include "task.h"
+#include "TaskManager.h"
 
 
 using namespace std;
@@ -25,22 +25,21 @@ task createNewTask() {
     cin >> ws;
     getline(cin, name);
 
-    cout << "Difficulty: ";
+    cout << "Difficulty (/10): ";
     while (!(cin >> diff)) {
         cout << "Invalid input! Please enter a number: ";
         cin.clear();
         cin.ignore(10000, '\n');
     }
 
-    cout << "Importance: ";
+    cout << "Importance (/10): ";
     while (!(cin >> importance)) {
         cout << "Invalid input! Please enter a number: ";
         cin.clear();
         cin.ignore(10000, '\n');
     }
 
-    cout << "Date (DD-MM-YYYY): ";
-    cin >> dueDRaw; //Raw text due date DD-MM-YYYY
+
 
     //DATE PROCESSING
     vector<string> tokens;
@@ -93,35 +92,75 @@ task createNewTask() {
 
 
 }
+
 int main() {
-    //max heap priority queue
+    TaskManager manager;
 
-    priority_queue<task> pq;
+    manager.loadTasksFromDB(); //HYDRATE TASK MANAGER
+    std::cout << "System started. " << manager.taskCount() << " tasks loaded.\n";
 
-    cout<<pq.size()<<endl;
-    if (pq.empty()) {
-        cout << "priority queue is empty!" << endl;
-    }else {
-        const task topTask = pq.top();
-        cout<<topTask.getName()<<endl;
+    int choice = 0;
+    while (choice!=5) {
+        std::cout << "\n---MAIN MENU ---\n";
+        std::cout << "1. Add New Task\n";
+        std::cout << "2. View Priority List\n";
+        std::cout << "3. Complete Task\n";
+        std::cout << "4. Delete Task (Permanent)\n";
+        std::cout << "5. Exit\n";
+        std::cout << "Selection: ";
+
+        if (!(std::cin >> choice)) {
+            // Handle noninteger bad input to prevent infinite loops
+            std::cin.clear();
+            std::cin.ignore(10000, '\n');
+            continue;
+        }
+
+        if (choice == 1) {
+            // Use helper to create task
+            task t = createNewTask();
+            manager.addTask(t);
+            std::cout << ">> Task saved to database successfully.\n";
+
+        } else if (choice == 2) {
+            // Get the sorted vector from the manager
+            std::vector<task> list = manager.getSortedTasks();
+
+            std::cout << "\n--- CURRENT PRIORITIES ---\n";
+            if (list.empty()) {
+                std::cout << "(No active tasks)\n";
+            } else {
+                for (const auto& t : list) {
+                    // Only show tasks that are NOT completed
+                    if (!t.getCompleted()) {
+                        std::cout << "[Priority: " << t.getPriority() << "] "
+                                  << t.getName()
+                                  << " (Due: " << t.getTimeLeft() << " hrs)\n";
+                    }
+                }
+            }
+
+        } else if (choice == 3) {
+            std::cout << "Enter exact name of task to complete: ";
+            std::string target;
+            std::cin >> std::ws; // Consume whitespace
+            std::getline(std::cin, target);
+
+            // This triggers the Soft Delete -> Rebuild -> Hydrate cycle
+            manager.completeTask(target);
+            std::cout << ">> Task status updated.\n";
+
+        } else if (choice == 4) {
+            std::cout << "Enter exact name of task to DELETE: ";
+            std::string target;
+            std::cin >> std::ws;
+            std::getline(std::cin, target);
+
+            manager.deleteTaskByName(target);
+            std::cout << ">> Task removed from database.\n";
+        }
     }
 
-    int times;
-    cout<< "Tasks: ";
-    cin >> times;
-    while (times>0) {
-        task thisTask = createNewTask();
-        pq.push(thisTask);
-        --times;
-    }
-    while (!pq.empty()) {
-        cout << pq.top().getName() <<endl;
-        pq.pop();
-    }
-
-
-}
-void insert(priority_queue<task>& pq, const task& t) {
-    pq.push(t);
+    return 0;
 }
 

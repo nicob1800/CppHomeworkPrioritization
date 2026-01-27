@@ -24,7 +24,7 @@ public:
     double timeLeft;
     double priorityVal;
 
-    task(string name, const int diff, const time_t dueD, const int importance, bool isDone = false)
+    task(string name, const int diff, const time_t dueD, const int importance, const bool isDone = false)
         : name(std::move(name)), diff(diff), dueD(dueD), importance(importance), completed(isDone)
     {
         const double hoursLeft = difftime(dueD, time(nullptr)) / 3600.0;
@@ -62,6 +62,8 @@ public:
 
     [[nodiscard]] bool getCompleted() const { return completed; }
     void setCompleted(const bool newCompleted) { this->completed = newCompleted; }
+
+    [[nodiscard]] time_t getDueD() const { return dueD; }
 
     static time_t makeDue(const int year, const int month, const int day, const int hour = 0) {
         struct tm t = {0};
