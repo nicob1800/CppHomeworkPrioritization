@@ -48,7 +48,7 @@ public:
     }
 
     void saveTaskToDB(const task& t) const {
-        const std::string sql = "INSERT INTO TASKS(NAME, DIFFICULTY, IMPORTANCE,  DUE_DATE) VALUES ('" +
+        const std::string sql = "INSERT INTO TASKS(NAME, DIFFICULTY, IMPORTANCE,  DUE_DATE, COMPLETED) VALUES ('" +
                             t.getName() + "', " +
                             std::to_string(t.getDiff()) + ", " +
                             std::to_string(t.getImportance()) + ", " +
@@ -62,7 +62,7 @@ public:
     }
 
     void loadTasksFromDB() {
-        auto sql = "SELECT NAME, DIFFICULTY, IMPORTANCE, DUE_DATE, COMPLETED FROM TASKS;";
+        auto sql = "SELECT NAME, DIFFICULTY, IMPORTANCE, DUE_DATE, COMPLETED FROM tasks;";
 
         auto callback = [](void* data, int argc, char** argv, char** azColName) -> int {
             auto * queue = static_cast<std::priority_queue<task>*>(data);
@@ -70,14 +70,43 @@ public:
             std::string name = argv[0];
             int diff = std::stoi(argv[1]);
             int imp = std::stoi(argv[2]);
-            bool comp = std::stoi(argv[3]);
+            long dueVal = std::stoi(argv[3]);
+            bool comp = (std::stoi(argv[4]) != 0);
 
-            queue->emplace(name, diff, time(nullptr) + (std::stoi(argv[3]) * 3600), imp, comp);
+            queue->emplace(name, diff, static_cast<time_t>(dueVal), imp, comp);
             return 0;
         };
 
         char* errMsg = nullptr;
         sqlite3_exec(m_db, sql, callback, &m_workQueue, &errMsg);
+    }
+
+    void completeTask(const std::string& taskName) {
+        std::string sql = "UPDATE tasks SET COMPLETE = 1 WHERE NAME ='" + taskName + "';";
+        char* errMsg = nullptr;
+
+        if (sqlite3_exec(m_db, sql.c_str(), nullptr, nullptr, &errMsg) != SQLITE_OK) {
+            std::cerr << "SQL Update Error: " << errMsg << std::endl;
+            sqlite3_free(errMsg);
+            return;
+        }
+        m_workQueue = std::priority_queue<task>();
+
+        loadTasksFromDB();
+    }
+
+    void deleteTaskByName(const std::string& nameToDelete) {
+        const auto sql = "DELETE FROM tasks WHERE NAME = '" + nameToDelete + "';";
+        char* errMsg = nullptr;
+        if (sqlite3_exec(m_db, sql.c_str(), nullptr, nullptr, &errMsg) != SQLITE_OK) {
+            std::cerr << "SQL Delete Error; " << errMsg << std::endl;
+            sqlite3_free(errMsg);
+            return;
+        }
+
+        m_workQueue = std::priority_queue<task>();
+
+        loadTasksFromDB();
     }
 
     [[nodiscard]] task getTopTask() const {

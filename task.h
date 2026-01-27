@@ -24,12 +24,12 @@ public:
     double timeLeft;
     double priorityVal;
 
-    task(string name, const int diff, const time_t dueD, const int importance, const bool completed)
-        : name(std::move(name)), diff(diff), dueD(dueD), importance(importance), completed(completed)
+    task(string name, const int diff, const time_t dueD, const int importance, bool isDone = false)
+        : name(std::move(name)), diff(diff), dueD(dueD), importance(importance), completed(isDone)
     {
-
         const double hoursLeft = difftime(dueD, time(nullptr)) / 3600.0;
         this->timeLeft = hoursLeft;
+
         if (completed) {this -> priorityVal = 0;}
         else if (hoursLeft <= 0) {
             //OVERDUE
