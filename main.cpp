@@ -42,43 +42,30 @@ task createNewTask() {
 
 
     //DATE PROCESSING
-    vector<string> tokens;
-    const regex re("-"); //Separator
-    sregex_token_iterator end;
-
-    sregex_token_iterator begin(dueDRaw.begin(), dueDRaw.end(), re, -1);
-    copy(begin, end, back_inserter(tokens));
-
-    //#### FORMAT AUTHENTICATION ####
-    while (tokens.size() != 3 || tokens[0].length() != 2 || tokens[1].length() != 2 || tokens[2].length() != 4) {
-        cout << "ERROR! Format must be DD-MM-YYYY. Try again: ";
-        cin >> dueDRaw; //Raw text due date DD-MM-YYYY
-
-        tokens.clear();
-        sregex_token_iterator newBegin(dueDRaw.begin(), dueDRaw.end(), re, -1);
-        copy(newBegin, end, back_inserter(tokens));
-    }
 
     int day, month, year;
+    const regex re("-"); //separator
+    
     while (true) {
         cout << "Date (DD-MM-YYYY): ";
         cin >> dueDRaw;
 
         // 1. Tokenize the input
-        vector<string> theseTokens;
-        sregex_token_iterator thisBegin(dueDRaw.begin(), dueDRaw.end(), re, -1);
-        copy(begin, end, back_inserter(theseTokens));
+        vector<string> tokens;
+        const sregex_token_iterator begin(dueDRaw.begin(), dueDRaw.end(), re, -1);
+        const sregex_token_iterator end;
+        copy(begin, end, back_inserter(tokens));
 
         // 2. Validate format and attempt conversion
         try {
-            if (theseTokens.size() != 3 || theseTokens[0].length() != 2 ||
-                theseTokens[1].length() != 2 || theseTokens[2].length() != 4) {
+            if (tokens.size() != 3 || tokens[0].length() != 2 ||
+                tokens[1].length() != 2 || tokens[2].length() != 4) {
                 throw std::invalid_argument("Format error");
                 }
 
-            day = stoi(theseTokens[0]);
-            month = stoi(theseTokens[1]);
-            year = stoi(theseTokens[2]);
+            day = stoi(tokens[0]);
+            month = stoi(tokens[1]);
+            year = stoi(tokens[2]);
 
             // If we reached here, inputs are valid numbers. Break the loop!
             break;
